@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
-import Confetti from "react-confetti";
 import LoginForm from "./LoginFom";
 import { Link } from "react-router-dom";
 import { useNavigate } from "react-router-dom";
@@ -17,18 +16,16 @@ const RockPaperScissorsGame = () => {
   const [highScore, setHighScore] = useState(0);
   const [showConfetti, setShowConfetti] = useState(false);
   const [gameOver, setGameOver] = useState(false);
-  const [leaderboard, setLeaderboard] = useState([]);
+  const [hover, setHover] = useState(false);
   const [error, setError] = useState("");
   const token = Cookies.get("token");
   const name = Cookies.get("name");
   const history = useNavigate();
   useEffect(() => {
-    // Check if token exists, if not, redirect to login
     if (!token) {
-      history("/login"); // Redirect to login if token is missing
+      history("/login");
     } else {
       fetchHighScore();
-      fetchLeaderboard();
     }
   }, [name, token, history]);
 
@@ -40,13 +37,16 @@ const RockPaperScissorsGame = () => {
       setComputerChoice(computerChoice);
       determineWinner(choice, computerChoice);
       setRoundsPlayed(roundsPlayed + 1);
+      setHover(true);
     }
     if (roundsPlayed + 1 === 10) {
       setGameOver(true);
     }
   };
 
-  const determineWinner = (player, computer) => {
+  const determineWinner = (player1, computer1) => {
+    const player = player1.toLowerCase(); // Convert player choice to lowercase
+    const computer = computer1.toLowerCase();
     if (player === computer) {
       setResult("It's a tie!");
     } else if (
@@ -80,14 +80,14 @@ const RockPaperScissorsGame = () => {
     }
   };
 
-  const fetchLeaderboard = async () => {
-    try {
-      const response = await axios.get("http://localhost:5000/api/leaderboard");
-      setLeaderboard(response.data.leaderboard);
-    } catch (error) {
-      setError("Error fetching leaderboard");
-    }
-  };
+  // const fetchLeaderboard = async () => {
+  //   try {
+  //     const response = await axios.get("http://localhost:5000/api/leaderboard");
+  //     setLeaderboard(response.data.leaderboard);
+  //   } catch (error) {
+  //     setError("Error fetching leaderboard");
+  //   }
+  // };
 
   const saveHighScore = async (score) => {
     try {
@@ -114,6 +114,7 @@ const RockPaperScissorsGame = () => {
   };
 
   const resetGame = () => {
+    setHover(false);
     setPlayerChoice("");
     setComputerChoice("");
     setResult("");
@@ -150,13 +151,13 @@ const RockPaperScissorsGame = () => {
             </Link>
 
             <div
-              className="text-lg text-white font-semibold hover:text-gray-300 hover:shadow-xl "
+              className="text-lg text-white font-semibold hover:text-gray-300 hover:shadow-xl cursor-pointer "
               onClick={handleLogout}
             >
               Logout
             </div>
           </div>
-          <section className="relative flex flex-col items-center justify-between py-4">
+          <section className="relative flex flex-col items-center justify-between ">
             <div className="min-h-screen  flex flex-col items-center justify-center text-white">
               <img
                 src="assets/hero.svg"
@@ -164,38 +165,46 @@ const RockPaperScissorsGame = () => {
                 className="absolute -z-20 w-full h-full object-cover "
               />
               <div className="min-h-screen  flex flex-col items-center justify-center text-white">
-                <h1 className="text-4xl font-bold mb-4">
+                <h1 className="text-3xl font-bold mb-1">
                   Rock, Paper, Scissors
                 </h1>
-                <div className="w-[600px] bg-gray-900 p-6 rounded-lg shadow-lg text-center">
-                  <h2 className=" text-3xl mb-2 font-semibold text-gray-300">
-                    High Score: {highScore}
-                  </h2>
-                  <h3 className="text-xl mb-2">Current Score: {score}</h3>
-                  <h3 className="text-xl mb-2">
-                    Rounds Played: {roundsPlayed} / 10
-                  </h3>
-                  {/* <button
-                    onClick={handleLogout}
-                    className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mb-4"
-                  >
-                    Logout
-                  </button> */}
+                <div className=" bg-gray-900 px-6 py-3 rounded-lg shadow-lg text-center">
+                  <div>
+                    <div>
+                      <h2 className=" text-xl p-2 mb-2 font-semibold rounded-lg shadow-lg text-red-500 border border-indigo-600">
+                        High Score: {highScore}
+                      </h2>
+                    </div>
+                    <div>
+                      <h3 className="text-xl  mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
+                        Current Score: {score}
+                      </h3>
+                    </div>
+                    <div>
+                      <h3 className="text-xl  mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
+                        Rounds Played: {roundsPlayed} / 10
+                      </h3>
+                    </div>
+                  </div>
+
                   {!gameOver ? (
-                    <div className="flex justify-between mb-4">
+                    <div className="flex justify-center gap-16 mb-4 ">
+                      <div className="flex items-center text-xl font-semibold text-white">
+                        Select to Play ->
+                      </div>
                       {choices.map((choice) => (
                         <button
                           key={choice}
                           onClick={() => playGame(choice)}
                           className="bg-gray-800  hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
                         >
-                          <div className="flex justify-center p-1">
+                          {/* <div className="flex justify-center p-1">
                             <img
                               src={`assets/${choice}.png`}
                               alt="Hero"
                               className="flex w-32 h-16 grayscale"
                             />
-                          </div>
+                          </div> */}
                           {choice}
                         </button>
                       ))}
@@ -203,18 +212,22 @@ const RockPaperScissorsGame = () => {
                   ) : (
                     <button
                       onClick={resetGame}
-                      className="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded mt-4"
+                      className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
                     >
                       Start New Game
                     </button>
                   )}
-                  <div className="flex gap-24 py-8 justify-center">
+                  <div
+                    className={`${
+                      hover ? "flex gap-24  py-2 justify-center" : "hidden"
+                    }`}
+                  >
                     <div>
                       {" "}
                       <img
                         src={`assets/${playerChoice}.png`}
                         alt="playerChoice"
-                        className="flex w-64 h-32 grayscale"
+                        className="flex w-32 h-16 grayscale"
                       />
                     </div>
                     <div>
@@ -222,16 +235,27 @@ const RockPaperScissorsGame = () => {
                       <img
                         src={`assets/${computerChoice}.png`}
                         alt="ComputerChoice"
-                        className="flex w-64 h-32 grayscale"
+                        className="flex w-32 h-16 grayscale"
                       />
                     </div>
                   </div>
-                  <h3 className="text-xl mb-2">Your choice: {playerChoice}</h3>
-                  <h3 className="text-xl mb-2">
-                    Computer's choice: {computerChoice}
-                  </h3>
-                  <h2 className="text-2xl mb-4">{result}</h2>
-                  {/* <Leaderboard leaderboard={leaderboard} /> */}
+                  <div className="flex gap-32 p-2 justify-center font-semibold rounded-lg shadow-lg  border border-indigo-600">
+                    <h3 className="text-2xl mb-2 ">
+                      Your choice
+                      <br />
+                      <span className="text-red-500 "> {playerChoice}</span>
+                    </h3>
+                    <div className="border-l border-indigo-600 ">
+                      <h3 className="text-2xl ml-20 ">
+                        Computer's choice
+                        <br />
+                        <span className="text-red-500"> {computerChoice}</span>
+                      </h3>
+                    </div>
+                  </div>
+                  <h2 className="text-3xl  font-bold text-red-500 py-2">
+                    {result}
+                  </h2>
                   <button
                     onClick={resetGame}
                     className="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded mt-4"
@@ -247,18 +271,5 @@ const RockPaperScissorsGame = () => {
     </>
   );
 };
-
-const Leaderboard = ({ leaderboard }) => (
-  <div className="mt-6">
-    <h3 className="text-2xl mb-4">Leaderboard</h3>
-    <ul className="list-disc list-inside">
-      {leaderboard.map((player, index) => (
-        <li key={index} className="text-lg">
-          {player.username} - {player.highScore} points
-        </li>
-      ))}
-    </ul>
-  </div>
-);
 
 export default RockPaperScissorsGame;
