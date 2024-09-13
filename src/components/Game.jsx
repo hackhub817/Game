@@ -2,8 +2,7 @@ import React, { useState, useEffect } from "react";
 import axios from "axios";
 import Cookies from "js-cookie";
 import LoginForm from "./LoginFom";
-import { Link } from "react-router-dom";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const choices = ["Rock", "Paper", "Scissors"];
 
@@ -21,6 +20,7 @@ const RockPaperScissorsGame = () => {
   const token = Cookies.get("token");
   const name = Cookies.get("name");
   const history = useNavigate();
+
   useEffect(() => {
     if (!token) {
       history("/login");
@@ -69,6 +69,7 @@ const RockPaperScissorsGame = () => {
       setResult("You lose!");
     }
   };
+
   const fetchHighScore = async () => {
     try {
       const response = await axios.get("http://localhost:5000/api/highscore", {
@@ -79,15 +80,6 @@ const RockPaperScissorsGame = () => {
       setError("Error fetching high score");
     }
   };
-
-  // const fetchLeaderboard = async () => {
-  //   try {
-  //     const response = await axios.get("http://localhost:5000/api/leaderboard");
-  //     setLeaderboard(response.data.leaderboard);
-  //   } catch (error) {
-  //     setError("Error fetching leaderboard");
-  //   }
-  // };
 
   const saveHighScore = async (score) => {
     try {
@@ -131,80 +123,66 @@ const RockPaperScissorsGame = () => {
     resetGame();
     setError(""); // Clear error on logout
   };
-  console.log("token", !token);
+
   return (
     <>
       {!token ? (
         <LoginForm />
       ) : (
         <>
-          <div className="flex gap-8 flex-end justify-end p-6">
+          <div className="flex gap-4 sm:gap-8 lg:gap-12 flex-end justify-end p-4 sm:p-6 lg:p-8">
             <Link to="/leaderboard">
-              <div className="text-lg text-white font-semibold hover:text-gray-300 hover:shadow-xl">
+              <div className="text-sm sm:text-lg lg:text-xl text-white font-semibold hover:text-gray-300 hover:shadow-xl">
                 Leaderboard
               </div>
             </Link>
             <Link to="/rules">
-              <div className="text-lg text-white font-semibold hover:text-gray-300 hover:shadow-xl">
+              <div className="text-sm sm:text-lg lg:text-xl text-white font-semibold hover:text-gray-300 hover:shadow-xl">
                 Rules
               </div>
             </Link>
-
             <div
-              className="text-lg text-white font-semibold hover:text-gray-300 hover:shadow-xl cursor-pointer "
+              className="text-sm sm:text-lg lg:text-xl text-white font-semibold hover:text-gray-300 hover:shadow-xl cursor-pointer"
               onClick={handleLogout}
             >
               Logout
             </div>
           </div>
-          <section className="relative flex flex-col items-center justify-between ">
-            <div className="min-h-screen  flex flex-col items-center justify-center text-white">
+          <section className="relative flex flex-col items-center justify-between py-4">
+            <div className="min-h-screen flex flex-col items-center justify-center text-white">
               <img
                 src="assets/hero.svg"
                 alt="Hero"
-                className="absolute -z-20 w-full h-full object-cover "
+                className="absolute -z-20 w-full h-full object-cover"
               />
-              <div className="min-h-screen  flex flex-col items-center justify-center text-white">
-                <h1 className="text-3xl font-bold mb-1">
+              <div className="min-h-screen flex flex-col items-center justify-center text-white px-4 sm:px-6 lg:px-8">
+                <h1 className="text-2xl sm:text-3xl lg:text-4xl font-bold mb-4">
                   Rock, Paper, Scissors
                 </h1>
-                <div className=" bg-gray-900 px-6 py-3 rounded-lg shadow-lg text-center">
-                  <div>
-                    <div>
-                      <h2 className=" text-xl p-2 mb-2 font-semibold rounded-lg shadow-lg text-red-500 border border-indigo-600">
-                        High Score: {highScore}
-                      </h2>
-                    </div>
-                    <div>
-                      <h3 className="text-xl  mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
-                        Current Score: {score}
-                      </h3>
-                    </div>
-                    <div>
-                      <h3 className="text-xl  mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
-                        Rounds Played: {roundsPlayed} / 10
-                      </h3>
-                    </div>
+                <div className="bg-gray-900 px-4 sm:px-6 lg:px-8 py-3 rounded-lg shadow-lg text-center">
+                  <div className="mb-4">
+                    <h2 className="text-lg sm:text-xl lg:text-2xl p-2 mb-2 font-semibold rounded-lg shadow-lg text-red-500 border border-indigo-600">
+                      High Score: {highScore}
+                    </h2>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
+                      Current Score: {score}
+                    </h3>
+                    <h3 className="text-lg sm:text-xl lg:text-2xl mb-2 p-2 font-semibold rounded-lg shadow-lg text-gray-300 border border-indigo-600">
+                      Rounds Played: {roundsPlayed} / 10
+                    </h3>
                   </div>
 
                   {!gameOver ? (
-                    <div className="flex justify-center gap-16 mb-4 ">
-                      <div className="flex items-center text-xl font-semibold text-white">
-                        Select to Play ->
+                    <div className="flex flex-col sm:flex-row justify-center gap-4 sm:gap-8 mb-4">
+                      <div className="text-lg sm:text-xl lg:text-2xl font-semibold text-white">
+                        Select to Play
                       </div>
                       {choices.map((choice) => (
                         <button
                           key={choice}
                           onClick={() => playGame(choice)}
-                          className="bg-gray-800  hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
+                          className="bg-gray-800 hover:bg-gray-500 text-white font-bold py-2 px-4 rounded"
                         >
-                          {/* <div className="flex justify-center p-1">
-                            <img
-                              src={`assets/${choice}.png`}
-                              alt="Hero"
-                              className="flex w-32 h-16 grayscale"
-                            />
-                          </div> */}
                           {choice}
                         </button>
                       ))}
@@ -217,43 +195,46 @@ const RockPaperScissorsGame = () => {
                       Start New Game
                     </button>
                   )}
+
                   <div
                     className={`${
-                      hover ? "flex gap-24  py-2 justify-center" : "hidden"
+                      hover
+                        ? "flex gap-4 sm:gap-8 py-2 justify-center"
+                        : "hidden"
                     }`}
                   >
                     <div>
-                      {" "}
                       <img
                         src={`assets/${playerChoice}.png`}
-                        alt="playerChoice"
-                        className="flex w-32 h-16 grayscale"
+                        alt="Player Choice"
+                        className="w-24 sm:w-32 lg:w-40 h-auto grayscale"
                       />
                     </div>
                     <div>
-                      {" "}
                       <img
                         src={`assets/${computerChoice}.png`}
-                        alt="ComputerChoice"
-                        className="flex w-32 h-16 grayscale"
+                        alt="Computer Choice"
+                        className="w-24 sm:w-32 lg:w-40 h-auto grayscale"
                       />
                     </div>
                   </div>
-                  <div className="flex gap-32 p-2 justify-center font-semibold rounded-lg shadow-lg  border border-indigo-600">
-                    <h3 className="text-2xl mb-2 ">
+
+                  <div className="flex flex-col sm:flex-row gap-4 sm:gap-16 p-2 justify-center font-semibold rounded-lg shadow-lg border border-indigo-600">
+                    <h3 className="text-lg sm:text-xl lg:text-2xl mb-2 text-center">
                       Your choice
                       <br />
-                      <span className="text-red-500 "> {playerChoice}</span>
+                      <span className="text-red-500">{playerChoice}</span>
                     </h3>
-                    <div className="border-l border-indigo-600 ">
-                      <h3 className="text-2xl ml-20 ">
+                    <div className="border-t sm:border-t-0 sm:border-l border-indigo-600">
+                      <h3 className="text-lg sm:text-xl lg:text-2xl ml-0 sm:ml-4 text-center">
                         Computer's choice
                         <br />
-                        <span className="text-red-500"> {computerChoice}</span>
+                        <span className="text-red-500">{computerChoice}</span>
                       </h3>
                     </div>
                   </div>
-                  <h2 className="text-3xl  font-bold text-red-500 py-2">
+
+                  <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-red-500 py-2">
                     {result}
                   </h2>
                   <button
